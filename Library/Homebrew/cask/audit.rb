@@ -488,7 +488,17 @@ module Cask
 
           next unless path.exist?
 
-          result = system_command("spctl", args: ["--assess", "--type", "install", path], print_stderr: false)
+          result = case artifact
+          when Artifact::Pkg
+            system_command("spctl", args: ["--assess", "--type", "install", path], print_stderr: false)
+          when Artifact::App
+            system_command("spctl", args: ["--assess", "--type", "execute", path], print_stderr: false)
+          when Artifact::Binary
+            system_command("codesign",  args:         ["-vvvv", "-R=notarized", "--check-notarization", path],
+                                        print_stderr: false)
+          else
+            add_error "Unknown artifact type: #{artifact.class}", location: cask.url.location
+          end
 
           next if result.success?
 
