@@ -165,8 +165,11 @@ module Homebrew
                      "proxying GitHub Packages. If `HOMEBREW_DOCKER_REGISTRY_TOKEN` is set, it will be used instead.",
       },
       HOMEBREW_DOCKER_REGISTRY_TOKEN:            {
-        description: "Use this bearer token for authenticating with a Docker registry proxying GitHub Packages. " \
-                     "Preferred over `HOMEBREW_DOCKER_REGISTRY_BASIC_AUTH_TOKEN`.",
+        description:  <<~EOS,
+          Use this bearer token for authenticating with a Docker registry proxying GitHub Packages.
+          Preferred over `HOMEBREW_DOCKER_REGISTRY_BASIC_AUTH_TOKEN`.
+        EOS
+        default_text: "`QQ==` unless `HOMEBREW_DOCKER_REGISTRY_BASIC_AUTH_TOKEN` is set.",
       },
       HOMEBREW_EDITOR:                           {
         description:  "Use this editor when editing a single formula, or several formulae in the " \
@@ -239,12 +242,20 @@ module Homebrew
         default:     "git",
       },
       HOMEBREW_GITHUB_API_TOKEN:                 {
-        description: "Use this personal access token for the GitHub API, for features such as " \
-                     "`brew search`. You can create one at <https://github.com/settings/tokens>. If set, " \
-                     "GitHub will allow you a greater number of API requests. For more information, see: " \
-                     "<https://docs.github.com/en/rest/overview/rate-limits-for-the-rest-api>" \
-                     "\n\n    *Note:* Homebrew doesn't require permissions for any of the scopes, but some " \
-                     "developer commands may require additional permissions.",
+        description: <<~EOS,
+          Use this personal access token for the GitHub API, for features such as `brew search`.
+          You can create one at <https://github.com/settings/tokens>.
+          If set, GitHub will allow you a greater number of API requests.
+          For more information, see: "<https://docs.github.com/en/rest/overview/rate-limits-for-the-rest-api>"
+
+              *Note:* Homebrew doesn't require permissions for any of the scopes,
+                      but some developer commands may require additional permissions.
+
+              *Note:* If set, this token will also be used to authenticating against `ghcr.io` unless
+                      `HOMEBREW_DOCKER_REGISTRY_TOKEN` or `HOMEBREW_DOCKER_REGISTRY_BASIC_AUTH_TOKEN` has been set.
+                      In this case, the token will require the `packages` permission to be set.
+                      `HOMEBREW_GITHUB_PACKAGES_TOKEN` is not used for this permission, but only for uploading packages.
+        EOS
       },
       HOMEBREW_GITHUB_PACKAGES_TOKEN:            {
         description: "Use this GitHub personal access token when accessing the GitHub Packages Registry " \

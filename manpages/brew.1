@@ -2348,6 +2348,10 @@ Use this base64 encoded username and password for authenticating with a Docker r
 .TP
 \fBHOMEBREW_DOCKER_REGISTRY_TOKEN\fP
 Use this bearer token for authenticating with a Docker registry proxying GitHub Packages\. Preferred over \fBHOMEBREW_DOCKER_REGISTRY_BASIC_AUTH_TOKEN\fP\&\.
+.RS
+.P
+\fIDefault:\fP \fBQQ==\fP unless \fBHOMEBREW_DOCKER_REGISTRY_BASIC_AUTH_TOKEN\fP is set\.
+.RE
 .TP
 \fBHOMEBREW_EDITOR\fP
 Use this editor when editing a single formula, or several formulae in the same directory\.
@@ -2418,12 +2422,15 @@ Linux only: Set this value to a new enough \fBgit\fP executable for Homebrew to 
 \fBHOMEBREW_GITHUB_API_TOKEN\fP
 Use this personal access token for the GitHub API, for features such as \fBbrew search\fP\&\. You can create one at 
 .UR https://github\.com/settings/tokens
-.UE \&\. If set, GitHub will allow you a greater number of API requests\. For more information, see: 
+.UE \&\. If set, GitHub will allow you a greater number of API requests\. For more information, see: \[u201c]
 .UR https://docs\.github\.com/en/rest/overview/rate\-limits\-for\-the\-rest\-api
 .UE
+\[u201d]
 .RS
 .P
 \fINote:\fP Homebrew doesn\[u2019]t require permissions for any of the scopes, but some developer commands may require additional permissions\.
+.P
+\fINote:\fP If set, this token will also be used to authenticating against \fBghcr\.io\fP unless \fBHOMEBREW_DOCKER_REGISTRY_TOKEN\fP or \fBHOMEBREW_DOCKER_REGISTRY_BASIC_AUTH_TOKEN\fP has been set\. In this case, the token will require the \fBpackages\fP permission to be set\. \fBHOMEBREW_GITHUB_PACKAGES_TOKEN\fP is not used for this permission, but only for uploading packages\.
 .RE
 .TP
 \fBHOMEBREW_GITHUB_PACKAGES_TOKEN\fP
