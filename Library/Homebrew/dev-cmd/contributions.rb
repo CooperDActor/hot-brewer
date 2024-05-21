@@ -3,9 +3,6 @@
 
 require "abstract_command"
 require "warnings"
-Warnings.ignore :default_gems do
-  require "csv"
-end
 
 module Homebrew
   module DevCmd
@@ -47,6 +44,8 @@ module Homebrew
 
       sig { override.void }
       def run
+        Homebrew.install_bundler_gems!(groups: ["contributions"]) if args.csv?
+
         results = {}
         grand_totals = {}
 
@@ -118,6 +117,8 @@ module Homebrew
 
       sig { params(totals: Hash).returns(String) }
       def generate_csv(totals)
+        require "csv"
+
         CSV.generate do |csv|
           csv << %w[user repo author committer coauthorship review total]
 
