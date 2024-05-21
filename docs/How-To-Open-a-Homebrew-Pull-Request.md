@@ -106,12 +106,27 @@ To make changes on a new branch and submit it for review, create a GitHub pull r
    * If there's a `bottle do` block in the formula, don't remove or change it; we'll update it when we merge your PR.
 5. Test your changes by running the following, and ensure they all pass without issue. For changed formulae and casks, make sure you do the `brew audit` step after your changed formula/cask has been installed.
 
+### Test your formulae-related changes
+
    ```sh
-   brew tests
-   HOMEBREW_NO_INSTALL_FROM_API=1 brew install --build-from-source <CHANGED_FORMULA|CHANGED_CASK>
-   brew test <CHANGED_FORMULA|CHANGED_CASK>
-   brew audit --strict --online <CHANGED_FORMULA|CHANGED_CASK>
+   HOMEBREW_NO_INSTALL_FROM_API=1 brew install --build-from-source <CHANGED_FORMULA>
+   brew test <CHANGED_FORMULA>
    ```
+
+### Test your cask-related changes
+
+   ```sh
+   HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_FROM_API=1 brew install <CHANGED_CASK>
+   ```
+
+### Test your formulae/cask-related changes
+
+   ```sh
+   brew audit --strict --online <CHANGED_FORMULA|CHANGED_CASK>
+   brew style --fix <CHANGED_FORMULA|CHANGED_CASK>
+   ```
+
+Additionally, if your changes are more than changed formulae and casks, please use `brew tests` to run Homebrew's unit and integration tests.
 
 6. [Make a separate commit](Formula-Cookbook.md#commit) for each changed formula with `git add` and `git commit`. Each formula's commits must be squashed.
    * Please note that our required commit message format for simple version updates is "`<FORMULA_NAME> <NEW_VERSION>`", e.g. "`source-highlight 3.1.8`".
