@@ -723,7 +723,9 @@ _brew_deps() {
     '--annotate[Mark any build, test, implicit, optional, or recommended dependencies as such in the output]' \
     '--arch[Show dependencies for the given CPU architecture]' \
     '--debug[Display any debugging information]' \
-    '--direct[Show only the direct dependencies declared in the formula]' \
+    '(--level)--direct[Show only the direct dependencies declared in the formula]' \
+    '--direct-build[Only include `:build` dependencies that are direct dependencies declared in the formula]' \
+    '--direct-test[Only include `:test` dependencies that are direct dependencies declared in the formula when showing non-flat output like `--tree` or `--graph`]' \
     '--dot[Show text-based graph description in DOT format]' \
     '(--installed)--eval-all[Evaluate all available formulae and casks, whether installed or not, to list their dependencies]' \
     '--for-each[Switch into the mode used by the `--eval-all` option, but only list dependencies for each provided formula, one formula per line. This is used for debugging the `--installed`/`--eval-all` display mode]' \
@@ -733,11 +735,13 @@ _brew_deps() {
     '--include-build[Include `:build` dependencies for formula]' \
     '--include-optional[Include `:optional` dependencies for formula]' \
     '--include-requirements[Include requirements in addition to dependencies for formula]' \
-    '--include-test[Include `:test` dependencies for formula (non-recursive)]' \
+    '--include-test[Include `:test` dependencies for formula (non-recursive for flat output)]' \
     '(--missing --eval-all)--installed[List dependencies for formulae that are currently installed. If formula is specified, list only its dependencies that are currently installed]' \
+    '(--direct)--level[Limit depth of recursive dependencies in `--tree`]' \
     '(--installed)--missing[Show only missing dependencies]' \
     '--os[Show dependencies for the given operating system]' \
     '--quiet[Make some output more quiet]' \
+    '--skip[Skip specified dependencies in the output]' \
     '--skip-recommended[Skip `:recommended` dependencies for formula]' \
     '--topological[Sort dependencies in topological order]' \
     '(--graph)--tree[Show dependencies as a tree. When given multiple formula arguments, show individual trees for each formula]' \

@@ -221,17 +221,31 @@ if the installed versions are outdated.
 
 : Include `:build` dependencies for *`formula`*.
 
+`--direct-build`
+
+: Only include `:build` dependencies that are direct dependencies declared in
+  the formula.
+
 `--include-optional`
 
 : Include `:optional` dependencies for *`formula`*.
 
 `--include-test`
 
-: Include `:test` dependencies for *`formula`* (non-recursive).
+: Include `:test` dependencies for *`formula`* (non-recursive for flat output).
+
+`--direct-test`
+
+: Only include `:test` dependencies that are direct dependencies declared in the
+  formula when showing non-flat output like `--tree` or `--graph`.
 
 `--skip-recommended`
 
 : Skip `:recommended` dependencies for *`formula`*.
+
+`--skip`
+
+: Skip specified dependencies in the output.
 
 `--include-requirements`
 
@@ -241,6 +255,10 @@ if the installed versions are outdated.
 
 : Show dependencies as a tree. When given multiple formula arguments, show
   individual trees for each formula.
+
+`--level`
+
+: Limit depth of recursive dependencies in `--tree`.
 
 `--graph`
 

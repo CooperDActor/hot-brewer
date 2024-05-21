@@ -137,20 +137,32 @@ List dependencies by their full name\.
 \fB\-\-include\-build\fP
 Include \fB:build\fP dependencies for \fIformula\fP\&\.
 .TP
+\fB\-\-direct\-build\fP
+Only include \fB:build\fP dependencies that are direct dependencies declared in the formula\.
+.TP
 \fB\-\-include\-optional\fP
 Include \fB:optional\fP dependencies for \fIformula\fP\&\.
 .TP
 \fB\-\-include\-test\fP
-Include \fB:test\fP dependencies for \fIformula\fP (non\-recursive)\.
+Include \fB:test\fP dependencies for \fIformula\fP (non\-recursive for flat output)\.
+.TP
+\fB\-\-direct\-test\fP
+Only include \fB:test\fP dependencies that are direct dependencies declared in the formula when showing non\-flat output like \fB\-\-tree\fP or \fB\-\-graph\fP\&\.
 .TP
 \fB\-\-skip\-recommended\fP
 Skip \fB:recommended\fP dependencies for \fIformula\fP\&\.
+.TP
+\fB\-\-skip\fP
+Skip specified dependencies in the output\.
 .TP
 \fB\-\-include\-requirements\fP
 Include requirements in addition to dependencies for \fIformula\fP\&\.
 .TP
 \fB\-\-tree\fP
 Show dependencies as a tree\. When given multiple formula arguments, show individual trees for each formula\.
+.TP
+\fB\-\-level\fP
+Limit depth of recursive dependencies in \fB\-\-tree\fP\&\.
 .TP
 \fB\-\-graph\fP
 Show dependencies as a directed graph\.

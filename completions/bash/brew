@@ -745,6 +745,8 @@ _brew_deps() {
       --cask
       --debug
       --direct
+      --direct-build
+      --direct-test
       --dot
       --eval-all
       --for-each
@@ -757,9 +759,11 @@ _brew_deps() {
       --include-requirements
       --include-test
       --installed
+      --level
       --missing
       --os
       --quiet
+      --skip
       --skip-recommended
       --topological
       --tree

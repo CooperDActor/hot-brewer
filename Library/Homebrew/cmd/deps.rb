@@ -33,17 +33,30 @@ module Homebrew
                description: "List dependencies by their full name."
         switch "--include-build",
                description: "Include `:build` dependencies for <formula>."
+        switch "--direct-build",
+               depends_on:  "--include-build",
+               description: "Only include `:build` dependencies that are direct dependencies declared " \
+                            "in the formula."
         switch "--include-optional",
                description: "Include `:optional` dependencies for <formula>."
         switch "--include-test",
-               description: "Include `:test` dependencies for <formula> (non-recursive)."
+               description: "Include `:test` dependencies for <formula> (non-recursive for flat output)."
+        switch "--direct-test",
+               depends_on:  "--include-test",
+               description: "Only include `:test` dependencies that are direct dependencies declared " \
+                            "in the formula when showing non-flat output like `--tree` or `--graph`."
         switch "--skip-recommended",
                description: "Skip `:recommended` dependencies for <formula>."
+        comma_array "--skip",
+                    description: "Skip specified dependencies in the output."
         switch "--include-requirements",
                description: "Include requirements in addition to dependencies for <formula>."
         switch "--tree",
                description: "Show dependencies as a tree. When given multiple formula arguments, " \
                             "show individual trees for each formula."
+        flag   "--level=",
+               depends_on:  "--tree",
+               description: "Limit depth of recursive dependencies in `--tree`."
         switch "--graph",
                description: "Show dependencies as a directed graph."
         switch "--dot",
@@ -75,6 +88,7 @@ module Homebrew
         switch "--cask", "--casks",
                description: "Treat all named arguments as casks."
 
+        conflicts "--direct", "--level"
         conflicts "--tree", "--graph"
         conflicts "--installed", "--missing"
         conflicts "--installed", "--eval-all"
@@ -88,6 +102,9 @@ module Homebrew
       def run
         raise UsageError, "`brew deps --os=all` is not supported" if args.os == "all"
         raise UsageError, "`brew deps --arch=all` is not supported" if args.arch == "all"
+        if (level = args.level) && !level.match?(/^[1-9][0-9]*$/)
+          raise UsageError, "`brew deps --level=<n>` needs a positive integer depth"
+        end
 
         os, arch = T.must(args.os_arch_combinations.first)
         all = args.eval_all?
@@ -107,6 +124,7 @@ module Homebrew
                                       !args.include_optional? &&
                                       !args.skip_recommended? &&
                                       !args.missing? &&
+                                      args.skip.blank? &&
                                       args.os.nil? &&
                                       args.arch.nil?
 
@@ -213,15 +231,15 @@ module Homebrew
       end
 
       def deps_for_dependent(dependency, recursive: false)
-        includes, ignores = args_includes_ignores(args)
+        includes, ignores, recursive_ignores = args_includes_ignores(args)
 
         deps = dependency.runtime_dependencies if @use_runtime_dependencies
 
         if recursive
-          deps ||= recursive_includes(Dependency, dependency, includes, ignores)
+          deps ||= recursive_includes(Dependency, dependency, includes, ignores, recursive_ignores:, skip: args.skip)
           reqs   = recursive_includes(Requirement, dependency, includes, ignores)
         else
-          deps ||= select_includes(dependency.deps, ignores, includes)
+          deps ||= select_includes(dependency.deps, ignores, includes, skip: args.skip)
           reqs   = select_includes(dependency.requirements, ignores, includes)
         end
 
@@ -272,10 +290,10 @@ module Homebrew
         "digraph {\n#{dot_code}\n}"
       end
 
-      def graph_deps(formula, dep_graph:, recursive:)
+      def graph_deps(formula, dep_graph:, recursive:, recursing: false)
         return if dep_graph.key?(formula)
 
-        dependables = dependables(formula)
+        dependables = dependables(formula, recursing:)
         dep_graph[formula] = dependables
         return unless recursive
 
@@ -284,7 +302,8 @@ module Homebrew
 
           graph_deps(Formulary.factory(dep.name),
                      dep_graph:,
-                     recursive: true)
+                     recursive: true,
+                     recursing: true)
         end
       end
 
@@ -297,17 +316,18 @@ module Homebrew
         end
       end
 
-      def dependables(formula)
-        includes, ignores = args_includes_ignores(args)
+      def dependables(formula, recursing: false)
+        includes, ignores, recursive_ignores = args_includes_ignores(args)
+        includes -= recursive_ignores if recursing
         deps = @use_runtime_dependencies ? formula.runtime_dependencies : formula.deps
-        deps = select_includes(deps, ignores, includes)
+        deps = select_includes(deps, ignores, includes, skip: args.skip)
         reqs = select_includes(formula.requirements, ignores, includes) if args.include_requirements?
         reqs ||= []
         reqs + deps
       end
 
       def recursive_deps_tree(formula, dep_stack:, prefix:, recursive:)
-        dependables = dependables(formula)
+        dependables = dependables(formula, recursing: dep_stack.length.positive?)
         max = dependables.length - 1
         dep_stack.push formula.name
         dependables.each_with_index do |dep, i|
@@ -329,6 +349,7 @@ module Homebrew
           puts "#{prefix}#{display_s}"
 
           next if !recursive || is_circular
+          next if dep_stack.length == args.level.to_i
 
           prefix_addition = if i == max
             "    "

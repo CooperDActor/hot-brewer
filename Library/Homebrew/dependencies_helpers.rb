@@ -15,19 +15,28 @@ module DependenciesHelpers
     ignores << :recommended? if args.skip_recommended?
     ignores << :satisfied? if args.missing?
 
-    [includes, ignores]
+    recursive_ignores = []
+    recursive_ignores << :build? if args.respond_to?(:direct_build?) && args.direct_build?
+    recursive_ignores << :test? if args.respond_to?(:direct_test?) && args.direct_test?
+
+    [includes, ignores, recursive_ignores]
   end
 
-  def recursive_includes(klass, root_dependent, includes, ignores)
+  def recursive_includes(klass, root_dependent, includes, ignores, recursive_ignores: nil, skip: nil)
     raise ArgumentError, "Invalid class argument: #{klass}" if klass != Dependency && klass != Requirement
 
     cache_key = "recursive_includes_#{includes}_#{ignores}"
+    cache_key = "#{cache_key}_#{recursive_ignores}" if recursive_ignores.present?
+    cache_key = "#{cache_key}_#{skip}" if skip.present?
+    recursive_ignores = Array(recursive_ignores)
+    # Ignore indirect test dependencies
+    recursive_ignores << :test? if recursive_ignores.exclude?(:test?)
 
     klass.expand(root_dependent, cache_key:) do |dependent, dep|
+      klass.prune if skip&.include?(dep.name)
       klass.prune if ignores.any? { |ignore| dep.public_send(ignore) }
       klass.prune if includes.none? do |include|
-        # Ignore indirect test dependencies
-        next if include == :test? && dependent != root_dependent
+        next if recursive_ignores.include?(include) && dependent != root_dependent
 
         dep.public_send(include)
       end
@@ -38,8 +47,9 @@ module DependenciesHelpers
     end
   end
 
-  def select_includes(dependables, ignores, includes)
+  def select_includes(dependables, ignores, includes, skip: nil)
     dependables.select do |dep|
+      next false if skip&.include?(dep.name)
       next false if ignores.any? { |ignore| dep.public_send(ignore) }
 
       includes.any? { |include| dep.public_send(include) }
