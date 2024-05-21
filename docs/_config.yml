@@ -15,6 +15,7 @@ plugins:
   - jekyll-remote-theme
   - jekyll-seo-tag
   - jekyll-sitemap
+  - jekyll-spaceship
 
 permalink: :title
 
@@ -40,3 +41,16 @@ twitter:
 
 facebook:
   publisher: https://www.facebook.com/machomebrew/
+
+jekyll-spaceship:
+  processors:
+    - mermaid-processor
+  mermaid-processor:
+    mode: default  # mode value 'pre-fetch' for fetching image at building stage
+    css:
+      class: mermaid
+    syntax:
+      code: 'mermaid!'
+      custom: ['@startmermaid', '@endmermaid']
+    config:
+      theme: default
