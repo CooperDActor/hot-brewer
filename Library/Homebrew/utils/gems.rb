@@ -312,18 +312,6 @@ module Homebrew
           end
           false
         end
-      elsif system bundle, "clean", out: :err # even if we have nothing to install, we may have removed gems
-        true
-      else
-        message = <<~EOS
-          failed to run `#{bundle} clean`!
-        EOS
-        if only_warn_on_failure
-          opoo_if_defined message
-        else
-          odie_if_defined message
-        end
-        false
       end
 
       if bundle_installed
